@@ -21,3 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('purchase_log/', include('purchase_log.urls')),
 ]
+
+urlpatterns += staticfiles_urlpatterns()

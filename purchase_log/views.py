@@ -105,10 +105,12 @@ def create_purchase_log(request):
         
         if not purchased_at:
             return JsonResponse({'error': 'purchased_at is required'}, status=400)
-        
-        item = models.Item.objects.filter(price=price, is_sales=True)
 
-        if not item.exists():
+        item = models.Item.objects.filter(price=price, is_sales=True).first()
+
+        if item:  # 結果が存在するか確認
+            item_id = item.id
+        else:
             return JsonResponse({'error': 'Item not found'}, status=404)
         
         user = models.User.objects.get(student_id=student_id)

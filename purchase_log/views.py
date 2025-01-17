@@ -106,7 +106,7 @@ def create_purchase_log(request):
         if not purchased_at:
             return JsonResponse({'error': 'purchased_at is required'}, status=400)
         
-        item = models.User.objects.filter(price=price, is_sales=True)
+        item = models.Item.objects.filter(price=price, is_sales=True)
 
         if not item.exists():
             return JsonResponse({'error': 'Item not found'}, status=404)

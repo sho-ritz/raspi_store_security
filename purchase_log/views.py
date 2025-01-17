@@ -26,8 +26,8 @@ class UserListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
 class ItemCreateView(generics.CreateAPIView):
-    queryset = models.Item.objects.all()
-    serializer_class = serializers.ItemSerializer
+    queryset = models.Items.objects.all()
+    serializer_class = serializers.ItemsSerializer
     permission_classes = [IsAdminUser]
 
     def get_serializer_context(self):
@@ -36,8 +36,8 @@ class ItemCreateView(generics.CreateAPIView):
         return context
 
 class ItemListView(generics.ListAPIView):
-    queryset = models.Item.objects.all()
-    serializer_class = serializers.ItemSerializer
+    queryset = models.Items.objects.all()
+    serializer_class = serializers.ItemsSerializer
     permission_classes = [IsAuthenticated]
 
 class PurchaseLogCreateView(generics.CreateAPIView):
@@ -116,7 +116,7 @@ def create_purchase_log(request):
         if not user:
             return JsonResponse({'error': 'User not found'}, status=404)
         
-        models.PurchaseLog.objects.create(user_id=user.id, item_id=item.id, created_at=purchased_at)
+        models.PurchaseLog.objects.create(user_id=user.id, item_id=item.id)
 
         send_to_line_group(user.name, item.name, price, purchased_at)
         

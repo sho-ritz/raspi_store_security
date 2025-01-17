@@ -118,7 +118,7 @@ def create_purchase_log(request):
         if not user:
             return JsonResponse({'error': 'User not found'}, status=404)
         
-        models.PurchaseLog.objects.create(user_id=user.id, item_id=item.id)
+        models.PurchaseLog.objects.create(user_id=user, item_id=item)
 
         send_to_line_group(user.name, item.name, price, purchased_at)
         

@@ -35,7 +35,7 @@ SECRET_KEY = 'django-insecure-yu=6mgl0fx(aht9(f)5m7-()xj)3(p9(_mtb8!%$ke+t&nzwnu
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'raspi-store-security.onrender.com']
 
 # Application definition
 

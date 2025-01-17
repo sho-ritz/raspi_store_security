@@ -27,7 +27,7 @@ class UserListView(generics.ListAPIView):
 
 class ItemCreateView(generics.CreateAPIView):
     queryset = models.Item.objects.all()
-    serializer_class = serializers.ItemsSerializer
+    serializer_class = serializers.ItemSerializer
     permission_classes = [IsAdminUser]
 
     def get_serializer_context(self):
@@ -37,7 +37,7 @@ class ItemCreateView(generics.CreateAPIView):
 
 class ItemListView(generics.ListAPIView):
     queryset = models.Item.objects.all()
-    serializer_class = serializers.ItemsSerializer
+    serializer_class = serializers.ItemSerializer
     permission_classes = [IsAuthenticated]
 
 class PurchaseLogCreateView(generics.CreateAPIView):

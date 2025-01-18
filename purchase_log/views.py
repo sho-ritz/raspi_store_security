@@ -9,6 +9,7 @@ import os
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from . import serializers
+from django.db.models import F
 
 class UserCreateView(generics.CreateAPIView):
     queryset = models.User.objects.all()

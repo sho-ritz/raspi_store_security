@@ -62,13 +62,13 @@ LINE_GROUP_ID = os.getenv("LINE_GROUP_ID")
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 
-def send_to_line_group(status, user_name="", item_name="", price=0, purchased_at="00:00", error_message=""):
+def send_to_line_group(status, user_name="", item_name="", price=0, time="00:00", error_message=""):
     if status == 200:
-        message = f"{purchased_at}: {user_name}さんが{item_name}を{price}円で購入しました。"
+        message = f"{time}: {user_name}さんが{item_name}を{price}円で購入しました。"
     elif status == 400:
-        message = f"{purchased_at}: {user_name}さんが購入を試みようとしたところ、{error_message}というエラーが発生しました。"
+        message = f"{time}: {user_name}さんが購入を試みようとしたところ、{error_message}というエラーが発生しました。"
     else:
-        message = f"{purchased_at}: {error_message}というエラーが発生しました。"
+        message = f"{time}: {error_message}というエラーが発生しました。"
 
     # LINEグループにメッセージを送信
     line_bot_api.push_message(
@@ -96,11 +96,7 @@ def check_user(request):
     try:
         body = json.loads(request.body)
         student_id = body.get('student_id')
-
-        if not student_id:
-            error_message = '学生証情報がリクエストに含まれていない'
-            send_to_line_group(404, error_message=error_message)
-            return JsonResponse({'error': error_message}, status=400)
+        checked_at = body.get('checked_at')
         
         user_name = hex_to_shiftjis(student_id)
         
@@ -108,7 +104,7 @@ def check_user(request):
 
         if not exists:
             error_message = '学生情報が見つからない'
-            send_to_line_group(400, error_message=error_message, user_name=user_name)
+            send_to_line_group(400, error_message=error_message, user_name=user_name, time=checked_at)
             return JsonResponse({'error': error_message}, status=404)
 
         return JsonResponse({'exists': exists})
@@ -134,7 +130,7 @@ def create_purchase_log(request):
             item_id = item.id
         else:
             error_message = '商品が売り切れ、もしくは未販売'
-            send_to_line_group(400, error_message=error_message, user_name=user_name, purchased_at=purchased_at)
+            send_to_line_group(400, error_message=error_message, user_name=user_name, time=purchased_at)
             return JsonResponse({'error': error_message}, status=404)
         
         if item.stock == 1:
@@ -149,7 +145,7 @@ def create_purchase_log(request):
             user_name=user_name,
             item_name=item.name,
             price=price,
-            purchased_at=purchased_at,
+            time=purchased_at,
             error_message=''
         )
 

@@ -87,7 +87,7 @@ def handle_text_message(event):
         on_sale_items = models.Item.objects.filter(is_sales=True)
 
         line_bot_api.reply_message(
-            LINE_GROUP_ID,
+            event.reply_token,
             TextSendMessage(text="\n".join([f"{50*(i+1)}円商品: {item.name}, 在庫数: {item.stock}" for i, item in enumerate(on_sale_items)]))
         )
 

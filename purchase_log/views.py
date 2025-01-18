@@ -88,7 +88,7 @@ def handle_text_message(event):
 
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text="\n".join([f"{50*(i+1)}円商品: {item.name}, 在庫数: {item.stock}" for i, item in enumerate(on_sale_items)]))
+            TextSendMessage(text="\n".join([f"{item.price}円商品: {item.name}, 在庫数: {item.stock}" for i, item in enumerate(on_sale_items)]))
         )
 
 def send_to_line_group(status, user_name="不明なユーザー", item_name="不明な商品", price=0, time="00:00", error_message=""):

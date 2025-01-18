@@ -10,8 +10,6 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from . import serializers
 from django.db.models import F
-from datetime import datetime
-import pytz
 
 class UserCreateView(generics.CreateAPIView):
     queryset = models.User.objects.all()
@@ -64,7 +62,7 @@ LINE_GROUP_ID = os.getenv("LINE_GROUP_ID")
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 
-def send_to_line_group(status, user_name="", item_name="", price=0, purchased_at=datetime.now(pytz.timezone('Asia/Tokyo')).strftime('%Y-%m-%d %H:%M:%S'), error_message=""):
+def send_to_line_group(status, user_name="", item_name="", price=0, purchased_at="00:00", error_message=""):
     if status == 200:
         message = f"{purchased_at}: {user_name}さんが{item_name}を{price}円で購入しました。"
     elif status == 400:

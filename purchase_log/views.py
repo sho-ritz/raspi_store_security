@@ -128,34 +128,14 @@ def create_purchase_log(request):
         user = models.User.objects.get(student_id=student_id)
         user_name = user.name
 
-        # if not student_id:
-        #     error_message = '学生証情報がリクエストに含まれていない'
-        #     send_to_line_group(404, error_message=error_message)
-        #     return JsonResponse({'error': error_message}, status=400)
-        
-        # if not price:
-        #     error_message = '金額情報がリクエストに含まれていない'
-        #     send_to_line_group(400, error_message=error_message, user_name=user_name)
-        #     return JsonResponse({'error': error_message}, status=400)
-        
-        # if not purchased_at:
-        #     error_message = '購入時間情報がリクエストに含まれていない'
-        #     send_to_line_group(400, error_message=error_message, user_name=user_name)
-        #     return JsonResponse({'error': error_message}, status=400)
-
         item = models.Item.objects.filter(price=price, is_sales=True).first()
 
         if item:  # 結果が存在するか確認
             item_id = item.id
         else:
-            error_message = '商品が見つからない'
-            send_to_line_group(400, error_message=error_message, user_name=user_name)
+            error_message = '商品が売り切れ、もしくは未販売'
+            send_to_line_group(400, error_message=error_message, user_name=user_name, purchased_at=purchased_at)
             return JsonResponse({'error': error_message}, status=404)
-        
-        if item.stock == 0:
-            error_message = '商品の在庫切れ'
-            send_to_line_group(400, error_message=error_message, user_name=user_name)
-            return JsonResponse({'error': error_message}, status=400)
         
         if item.stock == 1:
             models.Item.objects.filter(id=item_id).update(is_sales=False)

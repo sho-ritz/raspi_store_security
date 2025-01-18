@@ -125,23 +125,23 @@ def create_purchase_log(request):
         student_id = body.get('student_id')
         price = body.get('price')
         purchased_at = body.get('purchased_at')
+        user = models.User.objects.get(student_id=student_id)
+        user_name = user.name
 
-        if not student_id:
-            error_message = '学生証情報がリクエストに含まれていない'
-            send_to_line_group(404, error_message=error_message)
-            return JsonResponse({'error': error_message}, status=400)
+        # if not student_id:
+        #     error_message = '学生証情報がリクエストに含まれていない'
+        #     send_to_line_group(404, error_message=error_message)
+        #     return JsonResponse({'error': error_message}, status=400)
         
-        user_name = hex_to_shiftjis(student_id)
+        # if not price:
+        #     error_message = '金額情報がリクエストに含まれていない'
+        #     send_to_line_group(400, error_message=error_message, user_name=user_name)
+        #     return JsonResponse({'error': error_message}, status=400)
         
-        if not price:
-            error_message = '金額情報がリクエストに含まれていない'
-            send_to_line_group(400, error_message=error_message, user_name=user_name)
-            return JsonResponse({'error': error_message}, status=400)
-        
-        if not purchased_at:
-            error_message = '購入時間情報がリクエストに含まれていない'
-            send_to_line_group(400, error_message=error_message, user_name=user_name)
-            return JsonResponse({'error': error_message}, status=400)
+        # if not purchased_at:
+        #     error_message = '購入時間情報がリクエストに含まれていない'
+        #     send_to_line_group(400, error_message=error_message, user_name=user_name)
+        #     return JsonResponse({'error': error_message}, status=400)
 
         item = models.Item.objects.filter(price=price, is_sales=True).first()
 
@@ -162,18 +162,11 @@ def create_purchase_log(request):
         
         models.Item.objects.filter(id=item_id).update(stock=F('stock') - 1)
         
-        user = models.User.objects.get(student_id=student_id)
-
-        if not user:
-            error_message = '学生情報が見つからない'
-            send_to_line_group(400, error_message=error_message, user_name=user_name)
-            return JsonResponse({'error': error_message}, status=404)
-        
         models.PurchaseLog.objects.create(user_id=user, item_id=item)
 
         send_to_line_group(
             status=200,
-            user_name=user.name,
+            user_name=user_name,
             item_name=item.name,
             price=price,
             purchased_at=purchased_at,

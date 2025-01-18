@@ -113,6 +113,14 @@ def create_purchase_log(request):
         else:
             return JsonResponse({'error': 'Item not found'}, status=404)
         
+        if item.stock == 0:
+            return JsonResponse({'error': 'Item out of stock'}, status=400)
+        
+        if item.stock == 1:
+            Item.objects.filter(id=item_id).update(is_sales=False, stock=0)
+        
+        Item.objects.filter(id=item_id).update(stock=F('stock') - 1)
+        
         user = models.User.objects.get(student_id=student_id)
 
         if not user:

@@ -23,6 +23,7 @@ class Item(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     price = models.IntegerField()
+    unit_cost = models.IntegerField(default=0)
     is_sales = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)
     stock = models.IntegerField(default=0)

@@ -67,6 +67,8 @@ line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 def send_to_line_group(status, user_name="", item_name="", price=0, purchased_at=datetime.now(pytz.timezone('Asia/Tokyo')).strftime('%Y-%m-%d %H:%M:%S'), error_message=""):
     if status == 200:
         message = f"{purchased_at}: {user_name}さんが{item_name}を{price}円で購入しました。"
+    elif status == 400:
+        message = f"{purchased_at}: {user_name}さんが購入を試みようとしたところ、{error_message}というエラーが発生しました。"
     else:
         message = f"{purchased_at}: {error_message}というエラーが発生しました。"
 
@@ -74,6 +76,20 @@ def send_to_line_group(status, user_name="", item_name="", price=0, purchased_at
     line_bot_api.push_message(
         LINE_GROUP_ID, TextSendMessage(text=message)
     )
+
+def hex_to_shiftjis(hex_string):
+    try:
+        # 16進数文字列をバイトデータに変換
+        byte_data = bytes.fromhex(hex_string)
+
+        # バイトデータをShift_JIS文字列にデコード
+        shiftjis_string = byte_data.decode('shift_jis')
+
+        return shiftjis_string
+    except ValueError as e:
+        return f"変換エラー: {e}"
+    except UnicodeDecodeError as e:
+        return f"Shift_JISデコードエラー: {e}"
 
 
 @csrf_exempt
@@ -85,15 +101,22 @@ def check_user(request):
 
         if not student_id:
             error_message = '学生証情報がリクエストに含まれていない'
-            send_to_line_group(400, error_message=error_message)
+            send_to_line_group(404, error_message=error_message)
             return JsonResponse({'error': error_message}, status=400)
         
+        user_name = hex_to_shiftjis(student_id)
+        
         exists = models.User.objects.filter(student_id=student_id).exists()
+
+        if not exists:
+            error_message = '学生情報が見つからない'
+            send_to_line_group(400, error_message=error_message, user_name=user_name)
+            return JsonResponse({'error': error_message}, status=404)
 
         return JsonResponse({'exists': exists})
     except json.JSONDecodeError:
         error_message = 'JSONの形式が間違っている'
-        send_to_line_group(400, error_message=error_message)
+        send_to_line_group(404, error_message=error_message)
         return JsonResponse({'error': error_message}, status=400)
 
 @csrf_exempt
@@ -107,17 +130,19 @@ def create_purchase_log(request):
 
         if not student_id:
             error_message = '学生証情報がリクエストに含まれていない'
-            send_to_line_group(400, error_message=error_message)
+            send_to_line_group(404, error_message=error_message)
             return JsonResponse({'error': error_message}, status=400)
+        
+        user_name = hex_to_shiftjis(student_id)
         
         if not price:
             error_message = '金額情報がリクエストに含まれていない'
-            send_to_line_group(400, error_message=error_message)
+            send_to_line_group(400, error_message=error_message, user_name=user_name)
             return JsonResponse({'error': error_message}, status=400)
         
         if not purchased_at:
             error_message = '購入時間情報がリクエストに含まれていない'
-            send_to_line_group(400, error_message=error_message)
+            send_to_line_group(400, error_message=error_message, user_name=user_name)
             return JsonResponse({'error': error_message}, status=400)
 
         item = models.Item.objects.filter(price=price, is_sales=True).first()
@@ -126,12 +151,12 @@ def create_purchase_log(request):
             item_id = item.id
         else:
             error_message = '商品が見つからない'
-            send_to_line_group(400, error_message=error_message)
+            send_to_line_group(400, error_message=error_message, user_name=user_name)
             return JsonResponse({'error': error_message}, status=404)
         
         if item.stock == 0:
             error_message = '商品の在庫切れ'
-            send_to_line_group(400, error_message=error_message)
+            send_to_line_group(400, error_message=error_message, user_name=user_name)
             return JsonResponse({'error': error_message}, status=400)
         
         if item.stock == 1:
@@ -143,7 +168,7 @@ def create_purchase_log(request):
 
         if not user:
             error_message = '学生情報が見つからない'
-            send_to_line_group(400, error_message=error_message)
+            send_to_line_group(400, error_message=error_message, user_name=user_name)
             return JsonResponse({'error': error_message}, status=404)
         
         models.PurchaseLog.objects.create(user_id=user, item_id=item)
@@ -162,5 +187,5 @@ def create_purchase_log(request):
     
     except json.JSONDecodeError:
         error_message = 'JSONの形式が間違っている'
-        send_to_line_group(400, error_message=error_message)
+        send_to_line_group(404, error_message=error_message)
         return JsonResponse({'error': error_message}, status=400)

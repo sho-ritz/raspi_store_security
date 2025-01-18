@@ -118,7 +118,7 @@ def create_purchase_log(request):
             return JsonResponse({'error': 'Item out of stock'}, status=400)
         
         if item.stock == 1:
-            models.Item.objects.filter(id=item_id).update(is_sales=False, stock=0)
+            models.Item.objects.filter(id=item_id).update(is_sales=False)
         
         models.Item.objects.filter(id=item_id).update(stock=F('stock') - 1)
         

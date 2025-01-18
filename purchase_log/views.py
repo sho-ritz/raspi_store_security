@@ -98,13 +98,11 @@ def check_user(request):
         student_id = body.get('student_id')
         checked_at = body.get('checked_at')
         
-        user_name = hex_to_shiftjis(student_id)
-        
         exists = models.User.objects.filter(student_id=student_id).exists()
 
         if not exists:
             error_message = '学生情報が見つからない'
-            send_to_line_group(400, error_message=error_message, user_name=user_name, time=checked_at)
+            send_to_line_group(400, error_message=error_message, time=checked_at)
             return JsonResponse({'error': error_message}, status=404)
 
         return JsonResponse({'exists': exists})

@@ -15,6 +15,7 @@ class User(models.Model):
     name = models.CharField(max_length=255)
     student_id = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_banned = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -30,7 +31,6 @@ class Item(models.Model):
 
     class Meta:
         constraints = [
-            # is_sales=True の場合に、priceがユニークであることを保証
             models.UniqueConstraint(
                 fields=['price'],
                 condition=Q(is_sales=True),

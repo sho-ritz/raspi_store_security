@@ -124,7 +124,7 @@ def check_user(request):
         student_id = body.get('student_id')
         checked_at = body.get('checked_at')
         
-        exists = models.User.objects.filter(student_id=student_id).exists()
+        exists = models.User.objects.filter(student_id=student_id, is_banned=False).exists()
 
         if not exists:
             error_message = '学生情報が見つからない'
